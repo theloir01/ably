@@ -1,0 +1,95 @@
+<html>
+<head>
+  <script src="https://cdn.ably.io/lib/ably-1.js"></script>
+  <script src="https://jsbin-files.ably.io/js/jquery-1.8.3.min.js"></script>
+</head>
+<body>
+  <h1><a href="https://ably.com" target="_blank">Ably Tyre Temperature Rewind Demo</a></h1>
+  
+  <p>This example demonstrates the simplest way to subscribe to the last 10 messages using rewind. 
+  <p>This demo mimics both the publishing of tyre temperature data and the ability to recall the last twelve published messages upon connection. See <a href="https://ably.com/documentation/realtime/channels/channel-parameters/rewind">our Rewind documentation</a> for more details.
+
+  <div class="row">
+    <input id="publish" type="submit" value="Publish a message">
+  </div>
+
+  <ul class="row white-box" id="channel-status"></ul>
+
+  <div class="row">
+    <input id="subscribe" type="submit" value="Subscribe with rewind to last 10 messages">
+    <ul class="row white-box" id="channel-status-sub1"></ul>
+  </div>
+</body>
+<script>
+  let counter = 0;
+  //Enter your API key on the line below if connecting to your own channel
+  const apiKey = 'xVLyHw.IY-PbA:OCLbTKyOj53J0D0zjzlsWw5_F6zj4lScXhHuAUhQJio';
+  const realtime = new Ably.Realtime({ key: apiKey });
+  const channelOptions = {params: {rewind: '12'}};
+  const channel = realtime.channels.get('manager', channelOptions);
+
+  //Publish four messages on-click - one for each of the four tyres - display any success or error message
+  $('input#publish').on('click', function() {
+    show('Publishing message', 'orange', '#channel-status');
+    var currentNum=counter++;
+    channel.publish('event', 'Left Front Tyre 100.' + currentNum + ' degrees C', function(err) {
+      if (err) {
+        show('✗ Publish failed: ' + err.message, 'red', '#channel-status');
+      } else {
+        show('✓ Publish successful of msg with data Left Front Tyre 100.' + currentNum + ' degrees C', 'green', '#channel-status');
+      }
+    });
+    channel.publish('event', 'Right Front Tyre 100.' + currentNum + ' degrees C', function(err) {
+      if (err) {
+        show('✗ Publish failed: ' + err.message, 'red', '#channel-status');
+      } else {
+        show('✓ Publish successful of msg with data Right Front Tyre 100.' + currentNum + ' degrees C', 'green', '#channel-status');
+      }
+    });
+    channel.publish('event', 'Left Rear Tyre 100.' + currentNum + ' degrees C', function(err) {
+      if (err) {
+        show('✗ Publish failed: ' + err.message, 'red', '#channel-status');
+      } else {
+        show('✓ Publish successful of msg with data Left Rear Tyre 101.' + currentNum + ' degrees C', 'green', '#channel-status');
+      }
+    });
+    channel.publish('event', 'Right Rear Tyre 100.' + currentNum + ' degrees C', function(err) {
+      if (err) {
+        show('✗ Publish failed: ' + err.message, 'red', '#channel-status');
+      } else {
+        show('✓ Publish successful of msg with data Right Rear Tyre 101.' + currentNum + ' degrees C', 'green', '#channel-status');
+      }
+    });
+  });
+
+
+  //Subscribe to the channel to receive the mssages you have published
+  $('input#subscribe').on('click', function() {
+    show('Subscribing with rewind set to get at most 12 messages', 'orange', '#channel-status-sub1');
+    
+    subscribeChannel(channel, '#channel-status-sub1');
+  });
+
+  //Get the formatted datetime and show message or error and push it to the displaybox on the screen
+  function subscribeChannel(channel, displayBox) {
+    channel.unsubscribe();
+    channel.detach();
+    channel.attach(function(msg, err) {
+      channel.subscribe(function(msg,err) {
+        let date = new Date(msg.timestamp).toLocaleDateString("en-GB")
+        let time = new Date(msg.timestamp).toLocaleTimeString("en-GB")
+        if (err) {
+          show(date + ' ' + time + ' ✗ Subscribe failed: ' + err.message, 'red', displayBox);
+        } else {
+          show(date + ' ' + time + ' ✓ Msg received with data, ' + msg.data, 'green', displayBox);
+        }
+      });
+    });
+  }
+
+  //Displays the output to the screen
+  function show(status, color, box) {
+    $(box).append($('<li>').text(status).css('color', color));
+  }
+</script>
+</html>
