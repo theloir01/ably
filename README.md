@@ -1,1 +1,1 @@
-# ably
+# This code snippet is intended to be used to demonstrate the Rewind feature in Ably. It is designed to be run as-is with no need to enter your own API key. However, should you wish to modify it for your own needs the code comments will guide you to where you should change the code.
