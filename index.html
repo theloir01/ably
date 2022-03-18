@@ -23,7 +23,7 @@
 <script>
   let counter = 0;
   //Enter your API key on the line below if connecting to your own channel
-  const apiKey = 'xVLyHw.IY-PbA:OCLbTKyOj53J0D0zjzlsWw5_F6zj4lScXhHuAUhQJio';
+  const apiKey = 'YOUR-API-KEY-HERE';
   const realtime = new Ably.Realtime({ key: apiKey });
   const channelOptions = {params: {rewind: '12'}};
   const channel = realtime.channels.get('manager', channelOptions);
